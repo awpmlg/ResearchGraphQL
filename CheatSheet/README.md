@@ -426,4 +426,27 @@ fragment B on PasteObject {
 
 # <a id="title16">Arbitrary File Write + Path Traversal</a>
 
+Если используется мутация для загрузки файла то возможно есть уязвимость Arbitrary File Write либо Path Traversal.  
+Пример:
+```
+mutation {
+    uploadPaste(filename:"../../../../../tmp/file.txt", content:"hi"){
+        result
+    }
+}
+```
+
 # <a id="title17">IDOR</a>
+
+Попытайтесь изменить значения аргументов таких как *id*.  
+Пример:
+```
+query GetQuery { 
+    getSometh(id:22222) { 
+        name { 
+            login
+            password
+        } 
+    } 
+}
+```
