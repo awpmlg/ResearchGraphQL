@@ -1,3 +1,2 @@
 # ResearchGraphQL
-> GraphQL + vulns
-> Text that is a quote
+> GraphQL + vulns >
