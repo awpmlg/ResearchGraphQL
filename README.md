@@ -1,2 +1,2 @@
 # ResearchGraphQL
-all about GraphQL vulns
+GraphQL + vulns
