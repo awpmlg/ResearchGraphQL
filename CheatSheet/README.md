@@ -16,10 +16,11 @@
 - [Утечка структур GraphQL](#title11)
 - [Извлечение данных](#title12)
 - [Инъекции](#title13)
-- - [1]
-  - [2]
-  - [3]
-  - [4]
+- - [NoSQL injection](#title131)
+  - [SQL injection](#title132)
+  - [OS command injection](#title133)
+  - [HTML injection](#title134)
+  - [Stored XSS](#title135)
 - [DOS атаки](#title14)
 - [Обход авторизации](#title15)
 - [Arbitrary File Write + Path Traversal](#title16)
@@ -56,6 +57,16 @@ sdfsdfsdfsdfgfhdfghfghdfg
 # <a id="title12">Извлечение данных</a>
 
 # <a id="title13">Инъекции</a>
+
+### <a id="title131">NoSQL injection</a>
+
+### <a id="title132">SQL injection</a>
+
+### <a id="title133">OS command injection</a>
+
+### <a id="title134">HTML injection</a>
+
+### <a id="title135">Stored XSS</a>
 
 # <a id="title14">DOS атаки</a>
 
