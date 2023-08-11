@@ -8,6 +8,9 @@
 
 ## <a id="title1">[Доступ к приватным сообщениям GraphQL](https://portswigger.net/web-security/graphql/lab-graphql-reading-private-posts)</a>
 
+Заходим на сайт и проверяем что на нем есть.
+
+
 ## <a id="title2">[Случайное раскрытие закрытых полей GraphQL](https://portswigger.net/web-security/graphql/lab-graphql-accidental-field-exposure)</a>
 
 ## <a id="title3">[Поиск скрытой конечной точки GraphQL](https://portswigger.net/web-security/graphql/lab-graphql-find-the-endpoint)</a>
