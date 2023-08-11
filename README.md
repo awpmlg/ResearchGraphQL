@@ -1,4 +1,6 @@
-# ResearchGraphQL
+# GraphQL
+
+<img src="https://graphql.org/img/logo.svg" width="650" height="650">
 
 # Оглавление
 
