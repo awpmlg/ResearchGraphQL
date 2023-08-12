@@ -1,4 +1,4 @@
-<h1 align="center">☠️Cheat Sheet☠️</a> 
+<h1 align="center">☠️CHEAT SHEET☠️</a> 
 
 > Vulns+Recoon
   
